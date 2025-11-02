@@ -105,22 +105,22 @@ const ConfirmModal = ({ message, onConfirm, onCancel }) => {
 };
 
 const BookingModal = ({ booking, onClose, onDelete, onConfirm }) => {
-    if (!booking) return null;
-
-    const [formData, setFormData] = useState({
-        totalPayment: booking.totalPayment,
-        advancePayment: booking.advancePayment,
-    });
+    const [formData, setFormData] = useState({ totalPayment: 0, advancePayment: 0 });
     const [alertMessage, setAlertMessage] = useState('');
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
 
     useEffect(() => {
-        setFormData({
-            totalPayment: booking.totalPayment,
-            advancePayment: booking.advancePayment,
-        });
+        if (booking) {
+            setFormData({
+                totalPayment: booking.totalPayment,
+                advancePayment: booking.advancePayment,
+            });
+        }
     }, [booking]);
+
+    // ✅ Move conditional return *after* hooks
+    if (!booking) return null;
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -155,7 +155,7 @@ const BookingModal = ({ booking, onClose, onDelete, onConfirm }) => {
     };
 
     const isPending = booking.status === 'Pending';
-
+    
     return (
         <>
             <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center z-50 transition-opacity duration-300">

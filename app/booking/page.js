@@ -30,34 +30,31 @@ export default function BookingForm() {
 
   const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-  useEffect(() => {
-    if (formData.date) {
-      checkAvailability(formData.date);
-    }
-  }, [formData.date]);
+useEffect(() => {
+  if (formData.date) {
+    checkAvailability(formData.date);
+  }
+}, [formData.date, checkAvailability]);
 
-  const checkAvailability = async (selectedDate) => {
-    try {
-      setLoadingSlots(true);
-      const res = await axios.post(
-        `${API_BASE}/api/slots/availability`,
-        { date: selectedDate },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
 
-      setAvailableSlots(res.data.available || []);
-      setFormData((prev) => ({ ...prev, slot: "" }));
-    } catch (err) {
-      console.error("Error checking availability:", err);
-      setAvailableSlots([]);
-    } finally {
-      setLoadingSlots(false);
-    }
-  };
+const checkAvailability = useCallback(async (selectedDate) => {
+  try {
+    setLoadingSlots(true);
+    const res = await axios.post(
+      `${API_BASE}/api/slots/availability`,
+      { date: selectedDate },
+      { headers: { "Content-Type": "application/json" } }
+    );
+    setAvailableSlots(res.data.available || []);
+    setFormData((prev) => ({ ...prev, slot: "" }));
+  } catch (err) {
+    console.error("Error checking availability:", err);
+    setAvailableSlots([]);
+  } finally {
+    setLoadingSlots(false);
+  }
+}, [API_BASE]);
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
