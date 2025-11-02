@@ -34,7 +34,7 @@ useEffect(() => {
   if (formData.date) {
     checkAvailability(formData.date);
   }
-}, [formData.date, checkAvailability]);
+}, [formData.date]);
 
   const checkAvailability = async (selectedDate) => {
     try {
