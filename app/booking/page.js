@@ -30,11 +30,11 @@ export default function BookingForm() {
 
   const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-  useEffect(() => {
-    if (formData.date) {
-      checkAvailability(formData.date);
-    }
-  }, [formData.date]);
+useEffect(() => {
+  if (formData.date) {
+    checkAvailability(formData.date);
+  }
+}, [formData.date, checkAvailability]);
 
   const checkAvailability = async (selectedDate) => {
     try {
