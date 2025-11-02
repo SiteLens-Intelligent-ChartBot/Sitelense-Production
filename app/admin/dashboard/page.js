@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import {API_BASE_URL} from '../../api/config/api'
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -544,7 +545,7 @@ const ManageBot = () => {
     const fetchStatements = async () => {
         setLoading(true);
         try {
-            const res = await fetch('http://127.0.0.1:8000/admin/list');
+            const res = await fetch(`${API_BASE_URL}/admin/list`);
             if (res.ok) {
                 const data = await res.json();
                 setStatements(data.statements);
@@ -567,7 +568,7 @@ const ManageBot = () => {
         if (!newStatement.trim()) return;
 
         try {
-            const res = await fetch('http://127.0.0.1:8000/admin/add', {
+            const res = await fetch(`${API_BASE_URL}/admin/add`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -589,7 +590,7 @@ const ManageBot = () => {
     const handleDeleteStatement = async (statement) => {
         if (confirm('Are you sure you want to delete this statement?')) {
             try {
-                const res = await fetch('http://127.0.0.1:8000/admin/delete', {
+                const res = await fetch(`${API_BASE_URL}/admin/delete`, {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
