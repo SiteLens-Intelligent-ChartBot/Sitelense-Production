@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { API_BASE_URL } from "../../api/config/api"; 
+
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 
 // SVG Icon Components
@@ -105,22 +106,22 @@ const ConfirmModal = ({ message, onConfirm, onCancel }) => {
 };
 
 const BookingModal = ({ booking, onClose, onDelete, onConfirm }) => {
-    const [formData, setFormData] = useState({ totalPayment: 0, advancePayment: 0 });
+    if (!booking) return null;
+
+    const [formData, setFormData] = useState({
+        totalPayment: booking.totalPayment,
+        advancePayment: booking.advancePayment,
+    });
     const [alertMessage, setAlertMessage] = useState('');
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
 
     useEffect(() => {
-        if (booking) {
-            setFormData({
-                totalPayment: booking.totalPayment,
-                advancePayment: booking.advancePayment,
-            });
-        }
+        setFormData({
+            totalPayment: booking.totalPayment,
+            advancePayment: booking.advancePayment,
+        });
     }, [booking]);
-
-    // ✅ Move conditional return *after* hooks
-    if (!booking) return null;
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -155,7 +156,7 @@ const BookingModal = ({ booking, onClose, onDelete, onConfirm }) => {
     };
 
     const isPending = booking.status === 'Pending';
-    
+
     return (
         <>
             <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center z-50 transition-opacity duration-300">
@@ -253,7 +254,7 @@ const VerifiedBookingsCard = () => {
         const fetchVerifiedBookings = async () => {
             setLoading(true);
             try {
-                const res = await fetch(`http://localhost:3000/api/bookings?status=Verified`);
+                const res = await fetch(`${API_BASE}/api/bookings?status=Verified`);
                 if (res.ok) {
                     const data = await res.json();
                     setAllVerifiedBookings(data);
@@ -365,7 +366,7 @@ const BookingsManager = () => {
 
     const handleConfirmBooking = async (bookingData) => {
         try {
-            const res = await fetch(`http://localhost:3000/api/bookings`, {
+            const res = await fetch(`${API_BASE}/api/bookings`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
@@ -391,7 +392,7 @@ const BookingsManager = () => {
 
     const handleDeleteBooking = async (bookingId) => {
         try {
-            const res = await fetch(`http://localhost:3000/api/bookings?id=${bookingId}`, {
+            const res = await fetch(`${API_BASE}/api/bookings?id=${bookingId}`, {
                 method: 'DELETE',
             });
 
@@ -409,7 +410,7 @@ const BookingsManager = () => {
     const fetchBookings = async (status = 'Pending') => {
         setCurrentStatus(status);
         try {
-            const url = `http://localhost:3000/api/bookings?status=${status}`;
+            const url = `${API_BASE}/api/bookings?status=${status}`;
             const res = await fetch(url);
             const data = await res.json();
             setBookings(data);
@@ -523,7 +524,13 @@ const BookingsManager = () => {
                     </div>
                 )}
             </div>
-            <BookingModal booking={selectedBooking} onClose={handleCloseModal} onDelete={handleDeleteBooking} onConfirm={handleConfirmBooking} />
+            <BookingModal
+            booking={selectedBooking}
+            isVisible={!!selectedBooking}
+            onClose={handleCloseModal}
+            onDelete={handleDeleteBooking}
+            onConfirm={handleConfirmBooking}
+            />
         </div>
     );
 };
@@ -537,7 +544,7 @@ const ManageBot = () => {
     const fetchStatements = async () => {
         setLoading(true);
         try {
-            const res = await fetch(`${API_BASE_URL}/admin/list`);
+            const res = await fetch('http://127.0.0.1:8000/admin/list');
             if (res.ok) {
                 const data = await res.json();
                 setStatements(data.statements);
@@ -560,7 +567,7 @@ const ManageBot = () => {
         if (!newStatement.trim()) return;
 
         try {
-            const res = await fetch(`${API_BASE_URL}/admin/add`, {
+            const res = await fetch('http://127.0.0.1:8000/admin/add', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -582,7 +589,7 @@ const ManageBot = () => {
     const handleDeleteStatement = async (statement) => {
         if (confirm('Are you sure you want to delete this statement?')) {
             try {
-                const res = await fetch(`${API_BASE_URL}/admin/delete`, {
+                const res = await fetch('http://127.0.0.1:8000/admin/delete', {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
@@ -686,7 +693,7 @@ export default function AdminDashboard() {
     useEffect(() => {
         const checkPendingBookings = async () => {
             try {
-                const res = await fetch(`http://localhost:3000/api/bookings?status=Pending`);
+                const res = await fetch(`${API_BASE}/api/bookings?status=Pending`);
                 if (res.ok) {
                     const data = await res.json();
                     setHasPendingBookings(data.length > 0);
